@@ -1,0 +1,5 @@
+Specificatii functionale:
+
+Initial, pe LCD se afiseaza mesajul "Apasati butonul de pornire".
+Dupa apasarea butonului, trebuie sa se sufle in tubul spirometrului.
+Valoarea inregistrata va fi afisata pe LCD si in interfata grafica.

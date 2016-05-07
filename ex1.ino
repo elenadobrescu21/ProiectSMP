@@ -1,14 +1,26 @@
 #include <Wire.h>
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(12, NULL, 11, 9,8,7,6);
 
 const int sensorAddress = 0x28;
 const int pMax = 100;
 const int outMin = 1638;
 const int outMax = 14745;
 boolean apasaButon = false;
+const int ledGalben = 3;
+const int ledVerde = 4;
 
 void setup() {
   attachInterrupt(0,ISR_b1,FALLING);
   Wire.begin();
+
+  pinMode(ledGalben, OUTPUT);
+  pinMode(ledVerde, OUTPUT);
+  
+  //configurare LCD
+  lcd.begin(16, 2);
+  lcd.noCursor();
   Serial.begin(9600);  
 }
 
@@ -49,14 +61,29 @@ void loop() {
     float presiuneIntermediara;
     float sum = 0;
     float media;
-    Serial.println("Apasati butonul de pornire pentru a citi o valoare");
+    lcd.setCursor(0, 0);
+    if(apasaButon == false) {
+    digitalWrite(ledGalben, LOW);
+   // digitalWrite(ledVerde, LOW);
+    lcd.print("Apasati buton de");
+    lcd.setCursor(0,1);
+    lcd.print("pornire");
+    }
+    //Serial.println("Apasati butonul de pornire pentru a citi o valoare");
     if(apasaButon == true) {
-       for(int i=1; i<500; i++) {
-        presiuneIntermediara = getPressure_psi();
+      lcd.clear();
+      lcd.print("Suflati");
+      digitalWrite(ledVerde, LOW);
+       for(int i=1; i<1000; i++) {
+        presiuneIntermediara = getPressure_psi();     
+        digitalWrite(ledGalben, HIGH);
         sum = sum + presiuneIntermediara;
      }
-     media = sum/500;  
-     Serial.print("Presiunea citita este: "); 
+     lcd.clear();
+     media = sum/1000;  
+     digitalWrite(ledGalben, LOW);
+     digitalWrite(ledVerde, HIGH);
+     lcd.print(media);
      Serial.println(media);
      apasaButon = false;
     }
