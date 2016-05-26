@@ -1,3 +1,4 @@
+
 #include <Wire.h>
 #include <LiquidCrystal.h>
 
@@ -10,6 +11,12 @@ const int outMax = 14745;
 boolean apasaButon = false;
 const int ledGalben = 3;
 const int ledVerde = 4;
+float rho = 1.225; //densitatea aerului
+float pi = 3.14;
+float diametruMare = 2.7;
+float diametruMic = 1.1;
+float dt = 0.001; 
+const float volumEchilibru = 10.44;
 
 void setup() {
   attachInterrupt(0,ISR_b1,FALLING);
@@ -27,7 +34,7 @@ void setup() {
 void ISR_b1() {
   apasaButon = true;
   //debouncing software
-  delay(400);
+  delay(500);
 }
 float getPressure_psi() {
   byte byterequest=2;
@@ -61,6 +68,16 @@ void loop() {
     float presiuneIntermediara;
     float sum = 0;
     float media;
+    float pressure_pa;
+    float arieMare;
+    float arieMica;
+    float massFlow;
+    float volFlow;
+    float volume;
+
+    arieMare = pi*diametruMare*diametruMare/4;
+    arieMica = pi*diametruMic*diametruMic/4;
+    
     lcd.setCursor(0, 0);
     if(apasaButon == false) {
     digitalWrite(ledGalben, LOW);
@@ -74,17 +91,20 @@ void loop() {
       lcd.clear();
       lcd.print("Suflati");
       digitalWrite(ledVerde, LOW);
-       for(int i=1; i<1000; i++) {
+       for(int i=1; i<600; i++) {
         presiuneIntermediara = getPressure_psi();     
         digitalWrite(ledGalben, HIGH);
         sum = sum + presiuneIntermediara;
      }
      lcd.clear();
-     media = sum/1000;  
+     media = sum/600;  
      digitalWrite(ledGalben, LOW);
      digitalWrite(ledVerde, HIGH);
-     lcd.print(media);
-     Serial.println(media);
+     pressure_pa = media*6894.75729;
+     massFlow = 1000*sqrt((abs(pressure_pa)*2*rho)/((1/(pow(arieMica,2)))-(1/(pow(arieMare,2)))));
+     volFlow = massFlow/rho; 
+     volume = volFlow*dt;
+     Serial.println(volume);
      apasaButon = false;
     }
 
